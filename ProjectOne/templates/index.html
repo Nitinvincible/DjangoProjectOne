@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ Title }}</title>
+</head>
+<body>
+    <h1>{{ Welcome_Message }}</h1>
+    <h2>Course List:</h2>
+    {% for item in clist %}<div>{{forloop.counter}}. {{ item }}</div>{% endfor %}
+    <h2>Student Details:</h2>
+    {% for s in studentDetails %}
+        <div>
+            Name: {{ s.name }}, Age: {{ s.age }}, Roll No: {{ s.city }}
+        </div>
+    {% endfor %}
+    <br>
+    <h2>Student Details Table:</h2>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>City</th>
+        </tr>
+        {% for s in studentDetails %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.age }}</td>
+            <td>{{ s.city }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    
+    <h2>Numbers List:</h2>
+        {% for n in numbers %}<tr>
+            {% if n > 50 %}
+            <div>{{ n }}</div>
+            {% endif %}
+        </tr>{% endfor %}
+
+</body>
+</html>

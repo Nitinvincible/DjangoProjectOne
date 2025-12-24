@@ -1,5 +1,5 @@
 """
-URL configuration for config project.
+URL configuration for ProjectOne project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -16,7 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from ProjectOne import views
+
+#from .views import aboutUs
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.home),
+    path('about/', views.aboutUs),
+    path('Blogs/', views.blogs),
+    path('Courses/', views.courses),
+    path('Courses/<int:courseId>/', views.courses)
+    #path('Courses/<courseId>/', views.courses)
+    #path('Courses/<str:courseId>/', views.courses)
+    #path('Courses/<slug:courseId>/', views.courses)
 ]
