@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="{% url 'playground:feed' %}" class="logo">🎨 Code Playground</a>
+            <h1>Create Account</h1>
+            <p class="subtitle">Join the community of creative developers</p>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="error-message">
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    {{ error }}<br>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    <small>Letters, digits and @/./+/-/_ only.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                    {{ form.password1 }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                    {{ form.password2 }}
+                </div>
+
+                <button type="submit" class="btn-submit">Sign Up</button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'accounts:login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

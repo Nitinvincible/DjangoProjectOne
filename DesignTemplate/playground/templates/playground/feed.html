@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discover Amazing Code Snippets | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'playground/css/feed.css' %}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="{% url 'playground:feed' %}" class="logo">🎨 Code Playground</a>
+
+            <div class="nav-links">
+                <a href="{% url 'playground:feed' %}" class="nav-link active">Explore</a>
+                <a href="{% url 'playground:editor' %}" class="nav-link cta">✨ Create</a>
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' user.username %}" class="nav-link">
+                    👤 @{{ user.username }}
+                </a>
+                <form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link"
+                        style="background: none; border: none; cursor: pointer; font: inherit; color: inherit;">Logout</button>
+                </form>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav-link">Login</a>
+                <a href="{% url 'accounts:signup' %}" class="btn-signup">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <h1 class="hero-title">Create. Share. Inspire.</h1>
+            <p class="hero-subtitle">A social code playground for HTML, CSS & JavaScript with 3D rendering support</p>
+            <div class="hero-buttons">
+                <a href="{% url 'playground:editor' %}" class="btn-primary">Start Creating 🚀</a>
+                <a href="#snippets" class="btn-secondary">Explore Snippets</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <aside class="sidebar">
+                <div class="filter-section">
+                    <h3 class="filter-title">Environment</h3>
+                    <div class="filter-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="env" value="2d" checked>
+                            <span>🌐 2D Web</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="env" value="3d" checked>
+                            <span>🎮 3D (Three.js)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3 class="filter-title">Popular Tags</h3>
+                    <div class="tags-container">
+                        {% for tag in popular_tags %}
+                        <a href="?tag={{ tag }}" class="tag">#{{ tag }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 class="filter-title">Platform Stats</h3>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ snippets|length }}+</span>
+                        <span class="stat-label">Snippets</span>
+                    </div>
+                </div>
+            </aside>
+
+            <section id="snippets" class="content-area">
+                <div class="content-header">
+                    <h2 class="section-title">Latest Snippets</h2>
+                    <select class="sort-select">
+                        <option value="latest">Latest</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="views">Most Viewed</option>
+                    </select>
+                </div>
+
+                <div class="snippets-grid">
+                    {% for snippet in snippets %}
+                    <article class="snippet-card">
+                        <a href="{% url 'playground:detail' snippet.slug %}" class="card-link">
+                            <div class="card-thumbnail">
+                                {% if snippet.thumbnail %}
+                                <img src="{{ snippet.thumbnail.url }}" alt="{{ snippet.title }}">
+                                {% else %}
+                                <iframe src="{% url 'playground:preview' snippet.slug %}" sandbox loading="lazy"
+                                    class="preview-frame"></iframe>
+                                {% endif %}
+
+                                {% if snippet.environment == '3d' %}
+                                <span class="badge badge-3d">🎮 3D</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-content">
+                                <h3 class="card-title">{{ snippet.title }}</h3>
+                                <div class="card-meta">
+                                    <span class="author">
+                                        <a href="{% url 'accounts:profile' snippet.user.username %}">
+                                            @{{ snippet.user.username }}
+                                        </a>
+                                    </span>
+                                    <span class="date">{{ snippet.created_at|date:"M d" }}</span>
+                                </div>
+
+                                {% if snippet.tags %}
+                                <div class="card-tags">
+                                    {% for tag in snippet.tags|slice:":3" %}
+                                    <span class="mini-tag">#{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <div class="card-stats">
+                                    <span class="stat">👁️ {{ snippet.views_count }}</span>
+                                    <span class="stat">❤️ {{ snippet.likes_count }}</span>
+                                    <span class="stat">🍴 {{ snippet.forks_count }}</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                    {% empty %}
+                    <div class="empty-state">
+                        <h3>No snippets yet!</h3>
+                        <p>Be the first to create something amazing.</p>
+                        <a href="{% url 'playground:editor' %}" class="btn-primary">Create First Snippet</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>Built with ❤️ by <a href="https://github.com/Nitinvincible" target="_blank">@Nitin</a></p>
+            <p>Open Source Social Code Playground</p>
+        </div>
+    </footer>
+</body>
+
+</html>

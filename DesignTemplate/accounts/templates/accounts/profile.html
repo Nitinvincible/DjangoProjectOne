@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@{{ profile_user.username }} | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'playground/css/feed.css' %}">
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 2rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .profile-info {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-details h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .profile-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #1a202c;
+        }
+
+        .snippets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .snippet-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .snippet-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .snippet-preview {
+            background: #f7fafc;
+            padding: 2rem;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .snippet-info {
+            padding: 1rem;
+        }
+
+        .snippet-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .snippet-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-bar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            margin-bottom: 0;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: #1a202c;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <a href="{% url 'playground:feed' %}" class="nav-logo">🎨 Code Playground</a>
+            <div class="nav-links">
+                <a href="{% url 'playground:feed' %}">Feed</a>
+                <a href="{% url 'playground:editor' %}">Create</a>
+                {% if is_own_profile %}
+                <a href="{% url 'accounts:settings' %}">Settings</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-info">
+            <div class="profile-avatar">
+                {% if profile_user.avatar_url %}
+                <img src="{{ profile_user.avatar_url }}" alt="{{ profile_user.username }}"
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                {% else %}
+                👤
+                {% endif %}
+            </div>
+            <div class="profile-details">
+                <h1>@{{ profile_user.username }}</h1>
+                {% if profile_user.bio %}
+                <p>{{ profile_user.bio }}</p>
+                {% endif %}
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value">{{ snippets.count }}</span>
+                        <span class="stat-label">Snippets</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ profile_user.total_views }}</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ profile_user.total_likes }}</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value">{{ profile_user.streak_count }}</span>
+                        <span class="stat-label">Day Streak</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        {% if pinned_snippets %}
+        <h2 class="section-title">📌 Pinned Snippets</h2>
+        <div class="snippets-grid">
+            {% for snippet in pinned_snippets %}
+            <a href="{% url 'playground:snippet_detail' snippet.slug %}" class="snippet-card">
+                <div class="snippet-preview">
+                    🎨
+                </div>
+                <div class="snippet-info">
+                    <div class="snippet-title">{{ snippet.title }}</div>
+                    <div class="snippet-meta">
+                        <span>👁️ {{ snippet.views_count }}</span>
+                        <span>❤️ {{ snippet.likes_count }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <h2 class="section-title">✨ Recent Snippets</h2>
+        {% if snippets %}
+        <div class="snippets-grid">
+            {% for snippet in snippets %}
+            <a href="{% url 'playground:snippet_detail' snippet.slug %}" class="snippet-card">
+                <div class="snippet-preview">
+                    {% if snippet.environment == '3d' %}🎮{% else %}🌐{% endif %}
+                </div>
+                <div class="snippet-info">
+                    <div class="snippet-title">{{ snippet.title }}</div>
+                    <div class="snippet-meta">
+                        <span>👁️ {{ snippet.views_count }}</span>
+                        <span>❤️ {{ snippet.likes_count }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>No snippets yet</h3>
+            <p>{% if is_own_profile %}Start creating amazing code snippets!{% else %}This user hasn't created any public
+                snippets yet.{% endif %}</p>
+            {% if is_own_profile %}
+            <a href="{% url 'playground:editor' %}" class="btn-primary">Create Your First Snippet</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

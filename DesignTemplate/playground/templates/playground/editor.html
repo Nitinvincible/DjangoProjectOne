@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if snippet %}Edit: {{ snippet.title }}{% else %}New Snippet{% endif %} | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'playground/css/editor.css' %}">
+
+    <!-- Monaco Editor CDN -->
+    <link rel="stylesheet" data-name="vs/editor/editor.main"
+        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
+</head>
+
+<body>
+    <div class="editor-wrapper">
+        <!-- Top Navigation Bar -->
+        <nav class="top-bar">
+            <div class="left-section">
+                <a href="{% url 'playground:feed' %}" class="logo">🎨 Code Playground</a>
+                <input type="text" id="snippet-title" class="title-input" placeholder="Untitled Snippet"
+                    value="{{ snippet.title|default:'' }}">
+            </div>
+
+            <div class="right-section">
+                <select id="environment" class="env-select">
+                    <option value="2d" {% if not snippet or snippet.environment == "2d" %}selected{% endif %}>🌐 2D Web
+                    </option>
+                    <option value="3d" {% if snippet.environment == "3d" %}selected{% endif %}>🎮 3D (Three.js)</option>
+                </select>
+
+                <button id="save-btn" class="btn btn-primary">
+                    <span class="icon">💾</span> Save
+                </button>
+
+                {% if snippet and snippet.user != request.user %}
+                <button id="fork-btn" class="btn btn-secondary">
+                    <span class="icon">🍴</span> Fork
+                </button>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <a href="{% url 'accounts:profile' user.username %}" class="user-link">
+                    <span class="icon">👤</span> @{{ user.username }}
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-secondary">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <!-- Main Editor Layout -->
+        <div class="editor-layout">
+            <!-- Code Editors Panel -->
+            <div class="editors-panel">
+                <div class="editor-tabs">
+                    <div class="tab active" data-editor="html">HTML</div>
+                    <div class="tab" data-editor="css">CSS</div>
+                    <div class="tab" data-editor="js">JavaScript</div>
+                </div>
+
+                <div class="editor-container">
+                    <div id="html-editor" class="editor active"></div>
+                    <div id="css-editor" class="editor"></div>
+                    <div id="js-editor" class="editor"></div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <span class="preview-title">🔴 Live Preview</span>
+                    <button id="refresh-preview" class="btn-icon" title="Refresh Preview">🔄</button>
+                </div>
+                <iframe id="preview" sandbox="allow-scripts allow-modals allow-forms" class="preview-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+    <!-- Pass Django data to JavaScript -->
+    <script>
+        const SNIPPET_DATA = {
+            // 1. Handle ID safely: prints the number or null if empty
+            id: {{ snippet.id|default:"null" }},
+            // 2. Use double quotes + escapejs for code blocks
+            // This prevents breaking the script if the user writes quotes or newlines
+            html: "{{ snippet.html_code|default:''|escapejs }}",
+            css: "{{ snippet.css_code|default:''|escapejs }}",
+            js: "{{ snippet.js_code|default:''|escapejs }}",
+            environment: "{{ snippet.environment|default:'2d'|escapejs }}",
+            slug: "{{ snippet.slug|default:''|escapejs }}"
+        };
+
+        const CSRF_TOKEN = "{{ csrf_token }}";
+
+        // 3. Convert Python True/False to JS true/false
+        const IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+    </script>
+
+    <script src="{% static 'playground/js/editor.js' %}"></script>
+</body>
+
+</html>

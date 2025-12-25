@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="{% url 'playground:feed' %}" class="logo">🎨 Code Playground</a>
+            <h1>Welcome Back!</h1>
+            <p class="subtitle">Login to continue creating amazing designs</p>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="error-message">
+                    Invalid username or password. Please try again.
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                </div>
+
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
