@@ -246,7 +246,7 @@
         <h2 class="section-title">📌 Pinned Snippets</h2>
         <div class="snippets-grid">
             {% for snippet in pinned_snippets %}
-            <a href="{% url 'playground:snippet_detail' snippet.slug %}" class="snippet-card">
+            <a href="{% url 'playground:detail' snippet.slug %}" class="snippet-card">
                 <div class="snippet-preview">
                     🎨
                 </div>
@@ -266,7 +266,7 @@
         {% if snippets %}
         <div class="snippets-grid">
             {% for snippet in snippets %}
-            <a href="{% url 'playground:snippet_detail' snippet.slug %}" class="snippet-card">
+            <a href="{% url 'playground:detail' snippet.slug %}" class="snippet-card">
                 <div class="snippet-preview">
                     {% if snippet.environment == '3d' %}🎮{% else %}🌐{% endif %}
                 </div>

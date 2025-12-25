@@ -139,7 +139,7 @@
                 <span>{% if user_liked %}✅{% else %}❤️{% endif %}</span>
                 <span id="like-count">{{ snippet.likes_count }}</span>
             </button>
-            <a href="{% url 'playground:editor' slug=snippet.slug %}" class="action-btn btn-fork">
+            <a href="{% url 'playground:editor_edit' slug=snippet.slug %}" class="action-btn btn-fork">
                 🍴 Fork
             </a>
             {% if user == snippet.user %}
