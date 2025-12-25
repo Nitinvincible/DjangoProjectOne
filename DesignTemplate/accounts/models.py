@@ -4,6 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
     """Extended user model for Social Code Playground"""
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, help_text="Uploaded profile picture")
     avatar_url = models.URLField(blank=True, null=True, help_text="Profile picture URL")
     bio = models.TextField(max_length=500, blank=True, help_text="User biography")
     tech_stack_tags = models.JSONField(default=list, blank=True, help_text="Technologies the user works with")
@@ -25,6 +26,12 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+    
+    def get_avatar_display(self):
+        """Return the avatar URL, prioritizing uploaded file over URL"""
+        if self.avatar:
+            return self.avatar.url
+        return self.avatar_url or None
     
     def update_stats(self):
         """Update total views and likes from all snippets"""

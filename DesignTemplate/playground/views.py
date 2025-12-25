@@ -141,7 +141,7 @@ def save_snippet(request):
         return JsonResponse({
             'success': True,
             'slug': snippet.slug,
-            'id': str(snippet.id),
+            'id': snippet.id,
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)

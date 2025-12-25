@@ -25,9 +25,17 @@
 
             <div class="right-section">
                 <select id="environment" class="env-select">
-                    <option value="2d" {% if not snippet or snippet.environment == "2d" %}selected{% endif %}>🌐 2D Web
-                    </option>
-                    <option value="3d" {% if snippet.environment == "3d" %}selected{% endif %}>🎮 3D (Three.js)</option>
+                    {% if not snippet or snippet.environment == "2d" %}
+                        <option value="2d" selected>🌐 2D Web</option>
+                    {% else %}
+                        <option value="2d">🌐 2D Web</option>
+                    {% endif %}
+                    
+                    {% if snippet and snippet.environment == "3d" %}
+                        <option value="3d" selected>🎮 3D (Three.js)</option>
+                    {% else %}
+                        <option value="3d">🎮 3D (Three.js)</option>
+                    {% endif %}
                 </select>
 
                 <button id="save-btn" class="btn btn-primary">
@@ -84,20 +92,15 @@
     <!-- Pass Django data to JavaScript -->
     <script>
         const SNIPPET_DATA = {
-            // 1. Handle ID safely: prints the number or null if empty
-            id: {{ snippet.id|default:"null" }},
-            // 2. Use double quotes + escapejs for code blocks
-            // This prevents breaking the script if the user writes quotes or newlines
-            html: "{{ snippet.html_code|default:''|escapejs }}",
-            css: "{{ snippet.css_code|default:''|escapejs }}",
-            js: "{{ snippet.js_code|default:''|escapejs }}",
-            environment: "{{ snippet.environment|default:'2d'|escapejs }}",
-            slug: "{{ snippet.slug|default:''|escapejs }}"
+            id: {{ snippet.id|default:"null"|safe }},
+            html: "{{ snippet.html_code|default:""|escapejs }}",
+            css: "{{ snippet.css_code|default:""|escapejs }}",
+            js: "{{ snippet.js_code|default:""|escapejs }}",
+            environment: "{{ snippet.environment|default:"2d" }}",
+            slug: "{{ snippet.slug|default:"" }}"
         };
 
         const CSRF_TOKEN = "{{ csrf_token }}";
-
-        // 3. Convert Python True/False to JS true/false
         const IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
     </script>
 

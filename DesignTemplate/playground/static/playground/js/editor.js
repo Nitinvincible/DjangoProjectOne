@@ -178,9 +178,18 @@ document.getElementById('environment').addEventListener('change', () => {
 // ========================
 
 document.getElementById('save-btn').addEventListener('click', async function () {
+    console.log('Save button clicked');
+
     if (!IS_AUTHENTICATED) {
         alert('Please login to save snippets');
         window.location.href = '/accounts/login/';
+        return;
+    }
+
+    // Check if editors are initialized
+    if (!htmlEditor || !cssEditor || !jsEditor) {
+        console.error('Monaco editors not initialized yet');
+        alert('Editor is still loading, please wait a moment and try again.');
         return;
     }
 
@@ -199,6 +208,8 @@ document.getElementById('save-btn').addEventListener('click', async function () 
         is_public: true
     };
 
+    console.log('Saving snippet with data:', data);
+
     try {
         const response = await fetch('/api/save/', {
             method: 'POST',
@@ -209,7 +220,14 @@ document.getElementById('save-btn').addEventListener('click', async function () 
             body: JSON.stringify(data)
         });
 
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const result = await response.json();
+        console.log('Response data:', result);
 
         if (result.success) {
             // Update snippet data
@@ -218,6 +236,9 @@ document.getElementById('save-btn').addEventListener('click', async function () 
 
             // Show success message
             saveBtn.innerHTML = '<span class="icon">✅</span> Saved!';
+
+            console.log('Snippet saved successfully! ID:', result.id, 'Slug:', result.slug);
+
             setTimeout(() => {
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
@@ -225,12 +246,14 @@ document.getElementById('save-btn').addEventListener('click', async function () 
 
             // Redirect to snippet detail page
             setTimeout(() => {
+                console.log('Redirecting to:', `/snippet/${result.slug}/`);
                 window.location.href = `/snippet/${result.slug}/`;
             }, 1500);
         } else {
             throw new Error(result.error || 'Save failed');
         }
     } catch (error) {
+        console.error('Save error:', error);
         alert('Error saving snippet: ' + error.message);
         saveBtn.innerHTML = originalText;
         saveBtn.disabled = false;

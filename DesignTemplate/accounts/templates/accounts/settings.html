@@ -1,0 +1,454 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Code Playground</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .settings-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .settings-header h1 {
+            color: #1a202c;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-header .subtitle {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .form-group label .optional {
+            color: #a0aec0;
+            font-weight: 400;
+            font-size: 0.875rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-hint {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        .settings-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .settings-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .settings-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .avatar-preview {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-preview img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #e2e8f0;
+        }
+
+        .avatar-preview .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            border: 4px solid #e2e8f0;
+        }
+
+        .logo {
+            display: inline-block;
+            text-decoration: none;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #1a202c;
+        }
+
+        .logo:hover {
+            color: #667eea;
+        }
+
+        .avatar-upload-section {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1rem;
+            background: white;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .errorlist li {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="settings-container">
+        <div class="settings-card">
+            <a href="{% url 'playground:feed' %}" class="logo">← Back to Feed</a>
+
+            <div class="settings-header">
+                <h1>⚙️ Profile Settings</h1>
+                <p class="subtitle">Update your profile information</p>
+            </div>
+
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="avatar-preview">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.username }}" id="avatar-display">
+                {% elif user.avatar_url %}
+                <img src="{{ user.avatar_url }}" alt="{{ user.username }}" id="avatar-display">
+                {% else %}
+                <div class="avatar-placeholder" id="avatar-placeholder">👤</div>
+                {% endif %}
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="auth-form">
+                {% csrf_token %}
+
+                <div class="avatar-upload-section">
+                    <label style="margin-bottom: 1rem; display: block;">Profile Picture <span
+                            class="optional">(optional)</span></label>
+
+                    <div class="upload-tabs">
+                        <button type="button" class="tab-btn active" data-tab="upload">📁 Upload File</button>
+                        <button type="button" class="tab-btn" data-tab="url">🔗 Use URL</button>
+                    </div>
+
+                    <div class="tab-content active" id="upload-tab">
+                        <div class="file-input-wrapper">
+                            <label for="{{ form.avatar.id_for_label }}" class="file-input-label">
+                                <span id="file-name">📷 Choose an image file</span>
+                            </label>
+                            {{ form.avatar }}
+                        </div>
+                        {% if form.avatar.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.avatar.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <p class="form-hint">Upload a profile picture (JPG, PNG, GIF)</p>
+                    </div>
+
+                    <div class="tab-content" id="url-tab">
+                        {{ form.avatar_url }}
+                        {% if form.avatar_url.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.avatar_url.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        <p class="form-hint">Paste a URL to an image</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}">Bio <span class="optional">(optional)</span></label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.bio.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <p class="form-hint">A short description about you</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.github_profile.id_for_label }}">GitHub Profile <span
+                            class="optional">(optional)</span></label>
+                    {{ form.github_profile }}
+                    {% if form.github_profile.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.github_profile.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <p class="form-hint">Your GitHub profile URL</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.website.id_for_label }}">Website <span
+                            class="optional">(optional)</span></label>
+                    {{ form.website }}
+                    {% if form.website.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.website.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <p class="form-hint">Your personal website or portfolio</p>
+                </div>
+
+                <button type="submit" class="btn-submit">💾 Save Changes</button>
+            </form>
+
+            <div class="settings-footer">
+                <a href="{% url 'accounts:profile' username=user.username %}">View Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+
+                // Remove active class from all tabs
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked tab
+                btn.classList.add('active');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // File input preview
+        const fileInput = document.getElementById('{{ form.avatar.id_for_label }}');
+        const fileName = document.getElementById('file-name');
+        const avatarDisplay = document.getElementById('avatar-display');
+        const avatarPlaceholder = document.getElementById('avatar-placeholder');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function (e) {
+                if (this.files && this.files[0]) {
+                    fileName.textContent = '📷 ' + this.files[0].name;
+
+                    // Preview the uploaded image
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        if (avatarDisplay) {
+                            avatarDisplay.src = e.target.result;
+                        } else if (avatarPlaceholder) {
+                            // Replace placeholder with image
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.alt = 'Preview';
+                            img.id = 'avatar-display';
+                            avatarPlaceholder.parentNode.replaceChild(img, avatarPlaceholder);
+                        }
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // Preview avatar URL
+        const avatarUrlInput = document.getElementById('{{ form.avatar_url.id_for_label }}');
+        if (avatarUrlInput) {
+            avatarUrlInput.addEventListener('input', function () {
+                const url = this.value.trim();
+                if (url) {
+                    if (avatarDisplay) {
+                        avatarDisplay.src = url;
+                        avatarDisplay.onerror = function () {
+                            this.style.display = 'none';
+                        };
+                        avatarDisplay.onload = function () {
+                            this.style.display = 'block';
+                        };
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

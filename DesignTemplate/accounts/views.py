@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db.models import Count
 from .models import User, Activity
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, UserSettingsForm
 from playground.models import Snippet
 from datetime import date, timedelta
 
@@ -62,12 +63,14 @@ def user_profile(request, username):
 def user_settings(request):
     """User settings page"""
     if request.method == 'POST':
-        user = request.user
-        user.bio = request.POST.get('bio', '')
-        user.github_profile = request.POST.get('github_profile', '')
-        user.website = request.POST.get('website', '')
-        user.avatar_url = request.POST.get('avatar_url', '')
-        user.save()
-        return redirect('accounts:profile', username=user.username)
+        form = UserSettingsForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('accounts:profile', username=request.user.username)
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserSettingsForm(instance=request.user)
     
-    return render(request, 'accounts/settings.html', {'user': request.user})
+    return render(request, 'accounts/settings.html', {'form': form})
