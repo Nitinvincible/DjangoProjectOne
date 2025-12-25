@@ -12,9 +12,22 @@ let htmlEditor, cssEditor, jsEditor;
 let updateTimeout;
 
 require(['vs/editor/editor.main'], function () {
+    // Only use default templates for brand new snippets (no ID)
+    // For existing snippets, use saved code even if empty
+    const htmlValue = SNIPPET_DATA.id ? (SNIPPET_DATA.html || '') : (SNIPPET_DATA.html || getDefaultHTML());
+    const cssValue = SNIPPET_DATA.id ? (SNIPPET_DATA.css || '') : (SNIPPET_DATA.css || getDefaultCSS());
+    const jsValue = SNIPPET_DATA.id ? (SNIPPET_DATA.js || '') : (SNIPPET_DATA.js || getDefaultJS());
+
+    // Debug logging
+    console.log('🎨 Editor Initialization:');
+    console.log('Snippet ID:', SNIPPET_DATA.id);
+    console.log('HTML length:', (SNIPPET_DATA.html || '').length);
+    console.log('CSS length:', (SNIPPET_DATA.css || '').length);
+    console.log('JS length:', (SNIPPET_DATA.js || '').length);
+
     // Initialize HTML Editor
     htmlEditor = monaco.editor.create(document.getElementById('html-editor'), {
-        value: SNIPPET_DATA.html || getDefaultHTML(),
+        value: htmlValue,
         language: 'html',
         theme: 'vs-dark',
         automaticLayout: true,
@@ -29,7 +42,7 @@ require(['vs/editor/editor.main'], function () {
 
     // Initialize CSS Editor
     cssEditor = monaco.editor.create(document.getElementById('css-editor'), {
-        value: SNIPPET_DATA.css || getDefaultCSS(),
+        value: cssValue,
         language: 'css',
         theme: 'vs-dark',
         automaticLayout: true,
@@ -39,7 +52,7 @@ require(['vs/editor/editor.main'], function () {
 
     // Initialize JavaScript Editor
     jsEditor = monaco.editor.create(document.getElementById('js-editor'), {
-        value: SNIPPET_DATA.js || getDefaultJS(),
+        value: jsValue,
         language: 'javascript',
         theme: 'vs-dark',
         automaticLayout: true,

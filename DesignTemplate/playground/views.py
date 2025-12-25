@@ -228,6 +228,21 @@ def add_comment(request, slug):
     })
 
 
+@login_required
+@require_POST
+def delete_snippet(request, slug):
+    """Delete a snippet (owner only)"""
+    snippet = get_object_or_404(Snippet, slug=slug)
+    
+    # Permission check - only owner can delete
+    if snippet.user != request.user:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    snippet.delete()
+    
+    return JsonResponse({'success': True})
+
+
 def get_client_ip(request):
     """Get client IP address"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

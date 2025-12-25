@@ -80,8 +80,21 @@
         }
 
         .btn-edit {
-            background: #2ea043;
+            background: #238636;
             color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2ea043;
+        }
+
+        .btn-delete {
+            background: #da3633;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #b42f2c;
         }
 
         .stats-bar {
@@ -94,6 +107,104 @@
 
         .stat-item {
             font-size: 1.1rem;
+        }
+
+        /* Code Display Section */
+        .code-display-section {
+            background: #0d1117;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 1px solid #30363d;
+        }
+
+        .code-tabs {
+            display: flex;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .code-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .code-tab.active {
+            color: #58a6ff;
+            border-bottom: 2px solid #58a6ff;
+        }
+
+        .code-tab:hover {
+            color: #c9d1d9;
+        }
+
+        .code-blocks {
+            position: relative;
+        }
+
+        .code-block {
+            display: none;
+        }
+
+        .code-block.active {
+            display: block;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .code-header span {
+            font-weight: 700;
+            color: #c9d1d9;
+        }
+
+        .copy-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2ea043;
+        }
+
+        .copy-btn.copied {
+            background: #1f6feb;
+        }
+
+        .code-display-section pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            background: #0d1117;
+        }
+
+        .code-display-section code {
+            color: #e6edf3;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
     </style>
 </head>
@@ -146,12 +257,59 @@
             <a href="{% url 'playground:editor_edit' slug=snippet.slug %}" class="action-btn btn-edit">
                 ✏️ Edit
             </a>
+            <button id="delete-btn" class="action-btn btn-delete">
+                🗑️ Delete
+            </button>
             {% endif %}
         </div>
 
         <div class="stats-bar">
             <div class="stat-item">👁️ {{ snippet.views_count }} views</div>
             <div class="stat-item">🍴 {{ snippet.forks_count }} forks</div>
+        </div>
+
+        <!-- Code Display Section -->
+        <div class="code-display-section">
+            <div class="code-tabs">
+                <button class="code-tab active" data-lang="html">HTML</button>
+                <button class="code-tab" data-lang="css">CSS</button>
+                <button class="code-tab" data-lang="javascript">JavaScript</button>
+            </div>
+
+            <div class="code-blocks">
+                <div class="code-block active" data-lang="html">
+                    <div class="code-header">
+                        <span>HTML</span>
+                        <button class="copy-btn" data-code="html">
+                            <span class="copy-icon">📋</span>
+                            <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+                    <pre><code id="html-code">{{ snippet.html_code|default:"<!-- No HTML code -->" }}</code></pre>
+                </div>
+
+                <div class="code-block" data-lang="css">
+                    <div class="code-header">
+                        <span>CSS</span>
+                        <button class="copy-btn" data-code="css">
+                            <span class="copy-icon">📋</span>
+                            <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+                    <pre><code id="css-code">{{ snippet.css_code|default:"/* No CSS code */" }}</code></pre>
+                </div>
+
+                <div class="code-block" data-lang="javascript">
+                    <div class="code-header">
+                        <span>JavaScript</span>
+                        <button class="copy-btn" data-code="javascript">
+                            <span class="copy-icon">📋</span>
+                            <span class="copy-text">Copy</span>
+                        </button>
+                    </div>
+                    <pre><code id="js-code">{{ snippet.js_code|default:"// No JavaScript code" }}</code></pre>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -172,6 +330,83 @@
                 likeCount.textContent = data.count;
                 likeBtn.classList.toggle('liked');
                 likeBtn.querySelector('span').textContent = data.liked ? '✅' : '❤️';
+            }
+        });
+
+        // Code tab switching
+        document.querySelectorAll('.code-tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                const lang = this.dataset.lang;
+
+                // Update tab active state
+                document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // Update code block visibility
+                document.querySelectorAll('.code-block').forEach(block => {
+                    if (block.dataset.lang === lang) {
+                        block.classList.add('active');
+                    } else {
+                        block.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Copy to clipboard functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const codeType = this.dataset.code;
+                const codeElement = document.getElementById(`${codeType}-code`);
+                const codeText = codeElement.textContent;
+
+                try {
+                    await navigator.clipboard.writeText(codeText);
+
+                    // Visual feedback
+                    const copyText = this.querySelector('.copy-text');
+                    const originalText = copyText.textContent;
+                    copyText.textContent = 'Copied!';
+                    this.classList.add('copied');
+
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        copyText.textContent = originalText;
+                        this.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                    alert('Failed to copy code. Please try again.');
+                }
+            });
+        });
+
+        // Delete snippet with confirmation
+        document.getElementById('delete-btn')?.addEventListener('click', async function () {
+            if (!confirm('Are you sure you want to delete this snippet? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/delete/{{ snippet.slug }}/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Redirect to profile after successful deletion
+                    window.location.href = '/accounts/profile/{{ user.username }}/';
+                } else {
+                    alert('Failed to delete snippet: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Failed to delete snippet. Please try again.');
             }
         });
     </script>

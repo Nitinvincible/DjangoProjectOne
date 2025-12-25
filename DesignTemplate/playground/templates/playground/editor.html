@@ -26,15 +26,15 @@
             <div class="right-section">
                 <select id="environment" class="env-select">
                     {% if not snippet or snippet.environment == "2d" %}
-                        <option value="2d" selected>🌐 2D Web</option>
+                    <option value="2d" selected>🌐 2D Web</option>
                     {% else %}
-                        <option value="2d">🌐 2D Web</option>
+                    <option value="2d">🌐 2D Web</option>
                     {% endif %}
-                    
+
                     {% if snippet and snippet.environment == "3d" %}
-                        <option value="3d" selected>🎮 3D (Three.js)</option>
+                    <option value="3d" selected>🎮 3D (Three.js)</option>
                     {% else %}
-                        <option value="3d">🎮 3D (Three.js)</option>
+                    <option value="3d">🎮 3D (Three.js)</option>
                     {% endif %}
                 </select>
 
@@ -92,12 +92,12 @@
     <!-- Pass Django data to JavaScript -->
     <script>
         const SNIPPET_DATA = {
-            id: {{ snippet.id|default:"null"|safe }},
-            html: "{{ snippet.html_code|default:""|escapejs }}",
+            id: {% if snippet.id %}"{{ snippet.id }}"{% else %} null{% endif %},
+        html: "{{ snippet.html_code|default:""|escapejs }}",
             css: "{{ snippet.css_code|default:""|escapejs }}",
-            js: "{{ snippet.js_code|default:""|escapejs }}",
-            environment: "{{ snippet.environment|default:"2d" }}",
-            slug: "{{ snippet.slug|default:"" }}"
+                js: "{{ snippet.js_code|default:""|escapejs }}",
+                    environment: "{{ snippet.environment|default:"2d" }}",
+                        slug: "{{ snippet.slug|default:"" }}"
         };
 
         const CSRF_TOKEN = "{{ csrf_token }}";
